@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Демонстрационный модуль оценки состояния полей по индексам NDVI и MSAVI" />
+  <title>АгроСпектр — мониторинг полей</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>.legend .l1{background:#e43d30}.legend .l2{background:#f0a51a}.legend .l3{background:#78b943}.legend .l4{background:#16834b}</style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="АгроСпектр, на главную">
+      <span class="brand-mark">A</span>
+      <span><b>АгроСпектр</b><small>мониторинг полей</small></span>
+    </a>
+    <nav><a href="#analysis">Анализ</a><a href="#how">Как работает</a><a href="#about">О проекте</a></nav>
+    <button class="outline" id="demoTop">Открыть демо</button>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">Прототип системы дистанционного мониторинга</span>
+        <h1>Увидеть проблему на поле <em>до того, как она станет заметной</em></h1>
+        <p>Оценка состояния сельхозкультур, поиск неоднородных зон и понятный отчёт по данным дистанционного наблюдения.</p>
+        <div class="hero-actions">
+          <a class="primary" href="#analysis">Провести анализ</a>
+          <button class="ghost" id="demoHero">Посмотреть пример →</button>
+        </div>
+        <div class="trust"><span>NDVI</span><span>MSAVI</span><span>Карта зон</span><span>Динамика</span></div>
+      </div>
+      <div class="hero-visual" aria-label="Схематичная карта состояния поля">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <div class="satellite">✦</div>
+        <div class="mini-card mc1"><b>0,71</b><small>средний NDVI</small></div>
+        <div class="mini-card mc2"><span class="dot danger"></span><b>2 зоны внимания</b></div>
+        <div class="field-preview" id="heroGrid"></div>
+      </div>
+    </section>
+
+    <section class="analysis-section" id="analysis">
+      <div class="section-heading">
+        <div><span class="eyebrow">Интерактивный модуль</span><h2>Экспресс-анализ участка</h2></div>
+        <p>Запустите демонстрацию или загрузите обычную фотографию поля. Для точного NDVI необходим отдельный ближний инфракрасный канал.</p>
+      </div>
+
+      <div class="dashboard">
+        <aside class="controls">
+          <div class="step"><span>1</span><div><b>Источник данных</b><small>Выберите способ анализа</small></div></div>
+          <div class="source-tabs" role="tablist">
+            <button class="tab active" id="demoTab">Демо-поле</button>
+            <button class="tab" id="uploadTab">Фото</button>
+          </div>
+          <div id="demoPanel">
+            <label>Культура<select id="crop"><option>Пшеница озимая</option><option>Подсолнечник</option><option>Кукуруза</option><option>Ячмень</option></select></label>
+            <label>Сценарий<select id="scenario"><option value="normal">Стабильное развитие</option><option value="dry">Недостаток влаги</option><option value="stress">Локальный стресс</option></select></label>
+          </div>
+          <div class="upload-panel hidden" id="uploadPanel">
+            <input type="file" id="fileInput" accept="image/*" hidden />
+            <button class="dropzone" id="dropzone"><span>＋</span><b>Загрузить фотографию</b><small>JPG, PNG или WEBP</small></button>
+            <p class="micro">По RGB-фото рассчитывается приближённый индекс зелёной растительности, не настоящий NDVI.</p>
+          </div>
+          <div class="step"><span>2</span><div><b>Индекс оценки</b><small>Метод визуализации</small></div></div>
+          <div class="index-switch"><button class="active" data-index="NDVI">NDVI</button><button data-index="MSAVI">MSAVI</button></div>
+          <button class="analyze" id="analyzeBtn">Запустить анализ <span>→</span></button>
+          <div class="notice"><b>Важно</b><p>Результат носит ознакомительный характер и не заменяет осмотр агронома.</p></div>
+        </aside>
+
+        <div class="workspace">
+          <div class="workspace-top">
+            <div><span class="status-dot"></span><b id="fieldTitle">Поле № 12 · Пшеница</b><small id="analysisDate">Последний анализ: демонстрационные данные</small></div>
+            <div class="map-actions"><button id="regenBtn" title="Обновить карту">↻</button><button id="downloadBtn" title="Сохранить отчёт">↓ Отчёт</button></div>
+          </div>
+          <div class="map-wrap">
+            <canvas id="fieldCanvas" width="900" height="520"></canvas>
+            <div class="legend"><b id="legendName">NDVI</b><span><i class="l1"></i>Критично</span><span><i class="l2"></i>Внимание</span><span><i class="l3"></i>Норма</span><span><i class="l4"></i>Отлично</span></div>
+            <div class="map-label label-a">Участок A</div><div class="map-label label-b">Участок B</div>
+          </div>
+          <div class="metrics">
+            <article><span>Средний индекс</span><strong id="avgMetric">0,71</strong><small id="deltaMetric" class="positive">↑ 4% за период</small></article>
+            <article><span>Состояние посевов</span><strong id="stateMetric">Хорошее</strong><small>по текущему индексу</small></article>
+            <article><span>Зоны внимания</span><strong id="riskMetric">12,4 га</strong><small id="riskPercent">8% площади</small></article>
+          </div>
+          <div class="bottom-panels">
+            <article class="chart-card"><div><b>Динамика индекса</b><small>Последние 6 наблюдений</small></div><canvas id="chartCanvas" width="600" height="180"></canvas></article>
+            <article class="recommendation"><span class="rec-icon">!</span><div><b id="recTitle">Рекомендуется осмотр</b><p id="recText">На юго-востоке участка обнаружена зона с пониженным индексом. Проверьте влажность почвы и состояние растений.</p></div></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="how" id="how">
+      <span class="eyebrow">Простой процесс</span><h2>От снимка до решения — три шага</h2>
+      <div class="how-grid">
+        <article><span>01</span><div class="how-icon">⌁</div><h3>Получаем данные</h3><p>Снимок поля поступает в систему и проходит первичную проверку качества.</p></article>
+        <article><span>02</span><div class="how-icon">◫</div><h3>Рассчитываем индексы</h3><p>Алгоритм оценивает растительность и делит участок на однородные зоны.</p></article>
+        <article><span>03</span><div class="how-icon">✓</div><h3>Показываем результат</h3><p>Карта, динамика и зоны внимания помогают выбрать место для осмотра.</p></article>
+      </div>
+    </section>
+
+    <section class="about" id="about">
+      <div><span class="eyebrow">Технологическая задача №03</span><h2>Инструмент для быстрого понимания состояния полей</h2></div>
+      <p>Прототип демонстрирует идею модуля анализа спутниковых данных. Следующий этап — подключение реальных снимков Sentinel‑2, контуров хозяйств и истории наблюдений.</p>
+    </section>
+  </main>
+  <footer><div class="brand"><span class="brand-mark">A</span><span><b>АгроСпектр</b><small>демонстрационный прототип</small></span></div><p>Результаты требуют проверки специалистом на местности.</p></footer>
+  <script src="app.js"></script>
+</body>
+</html>
+
