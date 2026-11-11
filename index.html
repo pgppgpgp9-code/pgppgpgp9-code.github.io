@@ -1,111 +1,58 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Демонстрационный модуль оценки состояния полей по индексам NDVI и MSAVI" />
-  <title>АгроСпектр — мониторинг полей</title>
-  <link rel="stylesheet" href="styles.css" />
-  <style>.legend .l1{background:#e43d30}.legend .l2{background:#f0a51a}.legend .l3{background:#78b943}.legend .l4{background:#16834b}</style>
-</head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<title>GeoZoning — спутниковая диагностика полей</title>
+<meta name="description" content="GeoZoning: спутниковая диагностика полей, карты NDVI, сравнение дат, оценка посевов и план полевого осмотра.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2313463a'/%3E%3Cpath d='M7 23V9h5v14m4 0V9h9v5h-9m0 4h9v5h-9' fill='none' stroke='%23bce66e' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="zones.css">
+<link rel="stylesheet" href="workspace.css">
+<link rel="stylesheet" href="advisor.css">
+<link rel="stylesheet" href="corn.css">
+<link rel="stylesheet" href="navigation.css">
+<link rel="stylesheet" href="ai-demo.css">
+<link rel="stylesheet" href="vendor/leaflet.css"><link rel="stylesheet" href="satellite.css?v=12"></head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="#top" aria-label="АгроСпектр, на главную">
-      <span class="brand-mark">A</span>
-      <span><b>АгроСпектр</b><small>мониторинг полей</small></span>
-    </a>
-    <nav><a href="#analysis">Анализ</a><a href="#how">Как работает</a><a href="#about">О проекте</a></nav>
-    <button class="outline" id="demoTop">Открыть демо</button>
-  </header>
-
-  <main id="top">
-    <section class="hero">
-      <div class="hero-copy">
-        <span class="eyebrow">Прототип системы дистанционного мониторинга</span>
-        <h1>Увидеть проблему на поле <em>до того, как она станет заметной</em></h1>
-        <p>Оценка состояния сельхозкультур, поиск неоднородных зон и понятный отчёт по данным дистанционного наблюдения.</p>
-        <div class="hero-actions">
-          <a class="primary" href="#analysis">Провести анализ</a>
-          <button class="ghost" id="demoHero">Посмотреть пример →</button>
-        </div>
-        <div class="trust"><span>NDVI</span><span>MSAVI</span><span>Карта зон</span><span>Динамика</span></div>
-      </div>
-      <div class="hero-visual" aria-label="Схематичная карта состояния поля">
-        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
-        <div class="satellite">✦</div>
-        <div class="mini-card mc1"><b>0,71</b><small>средний NDVI</small></div>
-        <div class="mini-card mc2"><span class="dot danger"></span><b>2 зоны внимания</b></div>
-        <div class="field-preview" id="heroGrid"></div>
-      </div>
-    </section>
-
-    <section class="analysis-section" id="analysis">
-      <div class="section-heading">
-        <div><span class="eyebrow">Интерактивный модуль</span><h2>Экспресс-анализ участка</h2></div>
-        <p>Запустите демонстрацию или загрузите обычную фотографию поля. Для точного NDVI необходим отдельный ближний инфракрасный канал.</p>
-      </div>
-
-      <div class="dashboard">
-        <aside class="controls">
-          <div class="step"><span>1</span><div><b>Источник данных</b><small>Выберите способ анализа</small></div></div>
-          <div class="source-tabs" role="tablist">
-            <button class="tab active" id="demoTab">Демо-поле</button>
-            <button class="tab" id="uploadTab">Фото</button>
-          </div>
-          <div id="demoPanel">
-            <label>Культура<select id="crop"><option>Пшеница озимая</option><option>Подсолнечник</option><option>Кукуруза</option><option>Ячмень</option></select></label>
-            <label>Сценарий<select id="scenario"><option value="normal">Стабильное развитие</option><option value="dry">Недостаток влаги</option><option value="stress">Локальный стресс</option></select></label>
-          </div>
-          <div class="upload-panel hidden" id="uploadPanel">
-            <input type="file" id="fileInput" accept="image/*" hidden />
-            <button class="dropzone" id="dropzone"><span>＋</span><b>Загрузить фотографию</b><small>JPG, PNG или WEBP</small></button>
-            <p class="micro">По RGB-фото рассчитывается приближённый индекс зелёной растительности, не настоящий NDVI.</p>
-          </div>
-          <div class="step"><span>2</span><div><b>Индекс оценки</b><small>Метод визуализации</small></div></div>
-          <div class="index-switch"><button class="active" data-index="NDVI">NDVI</button><button data-index="MSAVI">MSAVI</button></div>
-          <button class="analyze" id="analyzeBtn">Запустить анализ <span>→</span></button>
-          <div class="notice"><b>Важно</b><p>Результат носит ознакомительный характер и не заменяет осмотр агронома.</p></div>
-        </aside>
-
-        <div class="workspace">
-          <div class="workspace-top">
-            <div><span class="status-dot"></span><b id="fieldTitle">Поле № 12 · Пшеница</b><small id="analysisDate">Последний анализ: демонстрационные данные</small></div>
-            <div class="map-actions"><button id="regenBtn" title="Обновить карту">↻</button><button id="downloadBtn" title="Сохранить отчёт">↓ Отчёт</button></div>
-          </div>
-          <div class="map-wrap">
-            <canvas id="fieldCanvas" width="900" height="520"></canvas>
-            <div class="legend"><b id="legendName">NDVI</b><span><i class="l1"></i>Критично</span><span><i class="l2"></i>Внимание</span><span><i class="l3"></i>Норма</span><span><i class="l4"></i>Отлично</span></div>
-            <div class="map-label label-a">Участок A</div><div class="map-label label-b">Участок B</div>
-          </div>
-          <div class="metrics">
-            <article><span>Средний индекс</span><strong id="avgMetric">0,71</strong><small id="deltaMetric" class="positive">↑ 4% за период</small></article>
-            <article><span>Состояние посевов</span><strong id="stateMetric">Хорошее</strong><small>по текущему индексу</small></article>
-            <article><span>Зоны внимания</span><strong id="riskMetric">12,4 га</strong><small id="riskPercent">8% площади</small></article>
-          </div>
-          <div class="bottom-panels">
-            <article class="chart-card"><div><b>Динамика индекса</b><small>Последние 6 наблюдений</small></div><canvas id="chartCanvas" width="600" height="180"></canvas></article>
-            <article class="recommendation"><span class="rec-icon">!</span><div><b id="recTitle">Рекомендуется осмотр</b><p id="recText">На юго-востоке участка обнаружена зона с пониженным индексом. Проверьте влажность почвы и состояние растений.</p></div></article>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="how" id="how">
-      <span class="eyebrow">Простой процесс</span><h2>От снимка до решения — три шага</h2>
-      <div class="how-grid">
-        <article><span>01</span><div class="how-icon">⌁</div><h3>Получаем данные</h3><p>Снимок поля поступает в систему и проходит первичную проверку качества.</p></article>
-        <article><span>02</span><div class="how-icon">◫</div><h3>Рассчитываем индексы</h3><p>Алгоритм оценивает растительность и делит участок на однородные зоны.</p></article>
-        <article><span>03</span><div class="how-icon">✓</div><h3>Показываем результат</h3><p>Карта, динамика и зоны внимания помогают выбрать место для осмотра.</p></article>
-      </div>
-    </section>
-
-    <section class="about" id="about">
-      <div><span class="eyebrow">Технологическая задача №03</span><h2>Инструмент для быстрого понимания состояния полей</h2></div>
-      <p>Прототип демонстрирует идею модуля анализа спутниковых данных. Следующий этап — подключение реальных снимков Sentinel‑2, контуров хозяйств и истории наблюдений.</p>
-    </section>
-  </main>
-  <footer><div class="brand"><span class="brand-mark">A</span><span><b>АгроСпектр</b><small>демонстрационный прототип</small></span></div><p>Результаты требуют проверки специалистом на местности.</p></footer>
-  <script src="app.js"></script>
-</body>
-</html>
+<header class="topbar"><a class="brand" href="#" aria-label="GeoZoning — главная"><span class="brandmark">▥</span>GeoZoning<span class="brandlabel">FIELD INTELLIGENCE</span></a><span class="local-note">Версия 9 · спутник + поле</span><button class="quiet" id="helpButton">Как это работает</button></header>
+<main>
+<div class="pagehead"><div><div class="eyebrow">GEOZONING · ОТ СПУТНИКА ДО ПОЛЕВЫХ ЗАМЕРОВ</div><h1>Каждый участок.<br>Больше знаний о поле.</h1><p>Спутниковая карта, анализ снимков, оценка урожайности по пробам и понятный план осмотра для разных культур.</p><nav class="corn-intro" aria-label="Разделы приложения"><a href="#viewer">01 / Покрытие посева</a><a href="#cornPanel">02 / Урожайность</a><a href="#advisor">03 / Осмотр поля</a></nav></div><button class="primary" id="topUpload">＋ Снимок поля</button></div>
+<div class="projectbar"><div><span class="project-icon">▥</span><strong id="projectTitle">Новое исследование</strong><span id="projectStatus">Снимок → зоны → отчёт</span></div><div class="project-actions"><button id="openProject">Открыть проект</button><button id="saveProject" disabled>Сохранить проект</button></div><input id="projectInput" type="file" accept=".json,.pole" hidden></div>
+<div class="workspace">
+<aside class="controls">
+<div class="sectiontitle"><span class="step">01</span><h2>Исходный снимок</h2></div>
+<button id="dropzone" class="dropzone"><span class="upload-icon">⊞</span><strong>Выберите фотографию</strong><span>или перетащите её сюда</span><small>JPG, PNG, WebP · до 30 МБ</small></button><input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" hidden>
+<button class="demo-button" id="demoButton">Попробовать на демопримере</button>
+<div class="file-info" id="fileInfo" hidden></div>
+<details class="project-details"><summary>Паспорт поля</summary><label for="fieldName">Название поля<input id="fieldName" maxlength="100" placeholder="Например, Южное поле"></label><div class="metadata-grid"><label for="cropName">Культура<input id="cropName" maxlength="80" value="Не указана" placeholder="Пшеница, подсолнечник, соя…"></label><label for="surveyDate">Дата съёмки<input id="surveyDate" type="date"></label></div><label for="fieldNotes">Наблюдения<textarea id="fieldNotes" rows="3" maxlength="5000" placeholder="Фаза развития, густота, сорняки, полегание, что проверить…"></textarea></label><p class="hint">Укажите культуру вручную. По одному RGB-снимку приложение не определяет вид растения и не ставит агрономический диагноз.</p></details>
+<div class="sectiontitle settings-title"><span class="step">02</span><h2>Настройки анализа</h2></div>
+<label for="resolution">Детальность <output id="resolutionLabel">80 ячеек</output></label><input id="resolution" type="range" min="30" max="150" step="10" value="80"><div class="range-labels"><span>Крупные зоны</span><span>Больше деталей</span></div>
+<p class="tip-inline">Число ячеек по длинной стороне, не число зон. Больше ячеек — виднее мелкие участки, но заметнее шум.</p>
+<label for="threshold">Строгость распознавания зелени <output id="thresholdLabel">0,08</output></label><input id="threshold" type="range" min="0" max="30" value="8"><p class="hint">Более высокий порог отсекает слабые зелёные оттенки. Зоны пересчитываются автоматически.</p>
+<p class="tip-inline">0,08 — порог цветового индекса, а не 8% растений и не точность анализа.</p>
+<details class="advanced"><summary>Пороги зон</summary><div class="class-breaks"><label>«Мало» — ниже, %<input id="lowBreak" type="number" min="1" max="98" value="25"></label><label>«Много» — от, %<input id="highBreak" type="number" min="2" max="99" value="60"></label></div><p class="hint">Процент зелёных пикселей внутри каждой ячейки. Это оценка покрытия на снимке.</p></details>
+<button class="primary analyze" id="analyzeButton" disabled>Сформировать зоны</button>
+<div class="method-note"><span>ⓘ</span><p>Эта карта показывает зелень, а не урожайность. Сорняки тоже могут быть зелёными. Расчёт т/га — ниже, только по вашим замерам.</p></div>
+<div class="field-tools"><h2>Граница поля</h2><p class="hint" id="fieldStatus">Сейчас анализируется весь снимок.</p><button id="drawField" disabled>Обвести поле на снимке</button><div id="drawingActions" hidden><button id="finishField">Применить границу</button><button id="undoPoint">Убрать точку</button><button id="cancelField">Отмена</button></div><button id="clearField" class="quiet" hidden>Анализировать весь снимок</button></div>
+<details class="geo"><summary>Географическая привязка <span>Необязательно</span></summary><p class="hint">Для ортофотоплана, ориентированного севером вверх. Укажите координаты его краёв в WGS84. GPS центра фотографии недостаточно.</p><div class="geo-grid"><label>Запад, долгота<input id="west" type="number" step="any" placeholder="Например, 41.90"></label><label>Восток, долгота<input id="east" type="number" step="any" placeholder="41.91"></label><label>Юг, широта<input id="south" type="number" step="any" placeholder="45.00"></label><label>Север, широта<input id="north" type="number" step="any" placeholder="45.01"></label></div><label class="check"><input id="geoConfirm" type="checkbox">Снимок — ортофотоплан, границы проверены</label><p id="geoStatus" class="hint">Без привязки доступны PNG и отчёт.</p></details>
+</aside>
+<section class="mainpanel" aria-label="Карта зон">
+<div class="viewer-toolbar"><div class="segmented" aria-label="Режим просмотра"><button class="active" data-mode="zones" aria-pressed="true">Зоны</button><button data-mode="overlay" aria-pressed="false">На фото</button><button data-mode="original" aria-pressed="false">Снимок</button><button data-mode="compare" aria-pressed="false">Сравнение</button></div><span class="badge" id="dataBadge">Нет снимка</span><button id="focusMap" class="focus-map" disabled aria-pressed="false">Развернуть карту</button></div>
+<div id="mapLegend" class="map-legend" hidden aria-label="Легенда и фильтр зон"></div>
+<div class="viewer" id="viewer"><div id="emptyState" class="empty-state"><div class="empty-symbol">▧</div><h2>Карта появится сразу после загрузки</h2><p>Красный — мало зелени. Жёлтый — средне. Зелёный — много.<br>Нажмите на выделенный участок, чтобы узнать подробности.</p><button id="emptyDemo" class="light-button">Открыть демопример</button></div><canvas id="displayCanvas" hidden aria-label="Интерактивная карта зон. Выбрать участок также можно в списке ниже." tabindex="0"></canvas><div class="map-caption" id="mapCaption" hidden></div><div class="north" id="northArrow" hidden>N ↑</div><div class="zoom-tools" id="zoomTools" hidden><button id="zoomIn" aria-label="Увеличить карту">＋</button><output id="zoomLabel">100%</output><button id="zoomOut" aria-label="Уменьшить карту">−</button><button id="fitView">Весь снимок</button></div><div id="mapBusy" class="map-busy" hidden>Формируем зоны…</div></div>
+<div class="viewer-bottom"><span id="viewerStatus" role="status">Готово к загрузке</span><label id="opacityControl" hidden>Наложение <input id="opacity" type="range" min="20" max="100" value="70"><output id="opacityLabel">70%</output></label><label id="compareControl" hidden>Граница сравнения <input id="compare" type="range" min="0" max="100" value="50"></label></div>
+<div class="map-options" id="mapOptions" hidden><label><input type="checkbox" id="showContours" checked>Границы зон</label><label><input type="checkbox" id="showLabels" checked>Подписи</label><span>Нажмите на участок · Перетаскивайте для перемещения</span></div>
+<div id="surveyStrip" class="survey-strip" hidden><div><strong>Быстрый осмотр</strong><span id="surveyStatus">Участки с малым покрытием зеленью</span></div><div><button id="previousLow" aria-label="Предыдущий участок с малым покрытием">Назад</button><button id="nextLow">Следующий участок</button></div></div>
+<div id="qualityPanel" class="quality-panel" hidden></div>
+<div class="inspector" id="inspector" hidden aria-live="polite"></div>
+<section class="results" id="results" hidden><div id="analysisInsight" class="analysis-insight"></div><div class="result-heading"><h2>Распределение зон</h2><span id="resultMeta"></span></div><div class="stats" id="stats"></div><div class="distribution" id="distribution" aria-label="Доли зон"></div><p class="hint" id="coverageNote"></p><details class="zone-directory" open><summary id="zoneDirectoryTitle">Участки на карте</summary><div id="regionList" class="region-list"></div><button id="moreRegions" hidden>Показать ещё 40</button></details><div class="export-row"><div><h2>Скачать карту поля</h2><p class="hint">Экспортируется вся выбранная область, независимо от фильтра.</p></div><div class="export-buttons"><button id="pngExport">PNG с зонами</button><button id="reportExport">Отчёт</button><button id="csvExport">Таблица зон</button><button id="jsonExport" disabled>GeoJSON</button><button id="tiffExport" disabled>GeoTIFF</button></div></div></section>
+</section>
+</div>
+<section class="corn-credit" aria-label="Автор приложения"><div><span class="credit-brand">GEOZONING / FIELD INTELLIGENCE</span><p>От спутника и снимка — к понятному плану осмотра поля.</p></div><div class="signature"><small>Developed by</small><strong>Magomedaliev Ibragim</strong></div></section><footer><span>GeoZoning · Версия 9</span><span>Фотографии обрабатываются на устройстве · Спутниковый раздел использует открытые данные</span></footer>
+</main>
+<div id="toast" role="alert" hidden></div>
+<dialog id="helpDialog"><button class="close" id="closeHelp" aria-label="Закрыть">×</button><div class="eyebrow">КОРОТКАЯ ИНСТРУКЦИЯ</div><h2>Как читать карту</h2><p>Загрузите JPG, PNG или WebP: анализ запускается автоматически. В каждой ячейке считается доля зелёных пикселей среди пригодных для оценки.</p><p><strong>Красный — мало зелени</strong> (меньше 25%). <strong>Жёлтый — средне</strong> (25–60%). <strong>Зелёный — много</strong> (от 60%). Пороги можно изменить. <strong>Серый</strong> — недостаточно данных из-за темноты, засветки или прозрачности.</p><p>Соседние ячейки одного класса объединяются в участки с номерами. Нажмите на участок на карте или в списке. Кнопки легенды показывают выбранный класс; «Все зоны» возвращает полную карту. В однородном снимке может быть один класс — приложение не придумывает различия.</p><p>Чтобы исключить дорогу или фон, нажмите «Обвести поле на снимке», поставьте минимум три точки по периметру и примените границу. Геоэкспорт сохраняет ступенчатые границы ячеек. Точность зависит от детальности и ручной привязки.</p><p>Тени, освещение, почва и фаза роста влияют на результат. Зелёный цвет не доказывает здоровье растения. Это RGB-оценка покрытия, не NDVI и не диагноз. Демо искусственное. Для точной GIS-карты нужен ортофотоплан севером вверх: GPS центра фотографии недостаточно.</p><p>Снимок обрабатывается на вашем устройстве и не сохраняется после закрытия страницы.</p><button class="primary" id="helpDone">Понятно</button></dialog>
+<script src="analysis.js"></script><script src="advice.js"></script><script src="corn.js"></script><script src="project.js"></script><script src="ai-demo.js"></script><script src="app-v2.js"></script><script src="workspace.js"></script><script src="advisor-ui.js"></script><script src="corn-ui.js?v=11"></script><script src="navigation.js"></script><script src="ai-ui.js"></script>
+<script src="satellite-core.js"></script><script src="satellite.js?v=12"></script></body></html>
 
