@@ -6,8 +6,27 @@
  const icon=name=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[name]}"/></svg>`;
  const pages={home:['Обзор','Поле под контролем — без сложных карт','GeoZoning превращает спутниковые данные и полевые замеры в понятные зоны и следующий шаг.'],satellite:['Спутник','Посмотрите поле со спутника','Найдите место, выберите культуру и разберите поле по шагам — от свежести снимка до плана осмотра.'],map:['Карта зон','Где растения развиваются слабее','Загрузите снимок, обведите поле и нажмите на участок, который хотите изучить.'],yield:['Урожайность','Переведите замеры в тонны с гектара','Добавьте полевые пробы и сравните урожайность разных участков выбранной культуры.'],scout:['Осмотр','Что проверить в поле','Выберите участок, укажите фазу роста и запишите то, что увидели на месте.'],reports:['Отчёты','Сохраните результаты работы','Карты, таблицы и план осмотра — в одном месте. Сохранённый проект можно открыть на другом устройстве.'],assistant:['Помощник','Объяснить данные простыми словами','Демонстрация будущего помощника: сводка, план осмотра и проверка недостающих данных.']};
  const sidebar=document.createElement('aside');sidebar.className='app-sidebar';sidebar.setAttribute('aria-label','Навигация приложения');
- sidebar.innerHTML=`<a class="side-brand" href="#home"><span class="side-mark">GZ</span><span>GeoZoning<small>ПОЛЕ · СПУТНИК · РЕШЕНИЕ</small></span></a><div class="side-caption">РАБОЧЕЕ ПРОСТРАНСТВО</div><nav class="app-nav" aria-label="Разделы приложения">${Object.entries(pages).map(([key,p],i)=>`<a href="#${key}" data-page-link="${key}">${icon(key)}<span>${p[0]}</span><small>0${i+1}</small></a>`).join('')}</nav><div class="side-note"><span class="privacy-dot"></span><strong>Данные под контролем</strong><p>Локальные снимки обрабатываются в браузере. Спутниковый раздел пока работает как демонстрация.</p></div><div class="side-edition">GEOZONING <span>08</span></div>`;
+ sidebar.innerHTML=`<a class="side-brand" href="#home" aria-label="GeoZoning — обзор"><span class="side-mark">GZ</span><span class="side-brand-copy">GeoZoning<small>ПОЛЕ · СПУТНИК · РЕШЕНИЕ</small></span></a><button class="side-collapse-toggle" type="button" aria-label="Свернуть меню" aria-expanded="true"><span aria-hidden="true">‹</span></button><div class="side-caption">РАБОЧЕЕ ПРОСТРАНСТВО</div><nav class="app-nav" aria-label="Разделы приложения">${Object.entries(pages).map(([key,p],i)=>`<a href="#${key}" data-page-link="${key}" data-label="${p[0]}">${icon(key)}<span>${p[0]}</span><small>0${i+1}</small></a>`).join('')}</nav><div class="side-note"><span class="privacy-dot"></span><strong>Данные под контролем</strong><p>Локальные снимки обрабатываются в браузере. Спутниковый раздел пока работает как демонстрация.</p></div><div class="side-edition">GEOZONING <span>08</span></div>`;
  document.body.prepend(sidebar);
+ const sidebarToggle=sidebar.querySelector('.side-collapse-toggle');
+ const sidebarStorageKey='geozoning-sidebar-collapsed';
+ const setSidebarCollapsed=collapsed=>{
+  const desktop=window.matchMedia('(min-width: 951px)').matches;
+  const active=desktop&&collapsed;
+  document.body.classList.toggle('sidebar-collapsed',active);
+  sidebarToggle.setAttribute('aria-expanded',String(!active));
+  sidebarToggle.setAttribute('aria-label',active?'Развернуть меню':'Свернуть меню');
+  sidebar.querySelectorAll('.app-nav a').forEach(link=>{if(active)link.title=link.dataset.label;else link.removeAttribute('title');});
+ };
+ let savedSidebarState=false;
+ try{savedSidebarState=localStorage.getItem(sidebarStorageKey)==='1';}catch(_error){}
+ setSidebarCollapsed(savedSidebarState);
+ sidebarToggle.addEventListener('click',()=>{
+  const next=!document.body.classList.contains('sidebar-collapsed');
+  setSidebarCollapsed(next);
+  try{localStorage.setItem(sidebarStorageKey,next?'1':'0');}catch(_error){}
+ });
+ window.addEventListener('resize',()=>setSidebarCollapsed(savedSidebarState=(()=>{try{return localStorage.getItem(sidebarStorageKey)==='1';}catch(_error){return false;}})()));
  sidebar.querySelector('.side-edition span').textContent='08';
  const skip=document.createElement('a');skip.className='skip-link';skip.href='#pageHeading';skip.textContent='К содержимому';document.body.prepend(skip);
  document.querySelector('.topbar .brand').remove();
