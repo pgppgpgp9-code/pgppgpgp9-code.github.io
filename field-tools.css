@@ -1,0 +1,34 @@
+.field-tools-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:18px}
+.field-tool-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.field-tool-head h3{margin-bottom:12px}
+.field-tool-badge{flex:none;padding:6px 9px;border-radius:20px;background:#eef3e6;color:#58704f;font-size:10px}
+.field-weather{background:linear-gradient(145deg,#f8fbf1,#fff)}
+.weather-advice{min-height:54px;padding:14px 15px;border-radius:10px;background:#edf4e4;color:#355943;font-size:13px;font-weight:600;line-height:1.55}
+.weather-advice[data-level=rain]{background:#e8f1f2;color:#2e5b62}
+.weather-advice[data-level=wind]{background:#edf0e8;color:#526249}
+.weather-advice[data-level=heat],.weather-advice[data-level=dry]{background:#fbf0d9;color:#765c27}
+.weather-advice[data-level=error]{background:#f8eae4;color:#8a493b}
+.weather-days{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:13px}
+.weather-days article{min-width:0;padding:11px 9px;border:1px solid #e2e8da;border-radius:10px;background:#fff}
+.weather-days span,.weather-days small{display:block;color:#778473;font-size:9px;line-height:1.45}
+.weather-days b{display:block;margin:7px 0;font-size:17px;font-weight:600;color:#244b3b}
+.field-weather>button{width:100%}
+.season-card{background:linear-gradient(145deg,#fff,#f4f7ec)}
+.season-empty{display:grid;place-items:center;min-height:130px;padding:20px;border:1px dashed #cfdac4;border-radius:12px;color:#718069;text-align:center;font-size:12px;line-height:1.7}
+.season-viewer{position:relative;height:200px;overflow:hidden;border-radius:12px;background:#203f34}
+.season-viewer img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
+.season-overlay{position:absolute;left:12px;right:12px;bottom:12px;display:flex;align-items:end;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:9px;background:#173b33de;color:#fff;backdrop-filter:blur(5px)}
+.season-overlay strong{font-size:14px}
+.season-overlay span{font-size:10px;color:#dce8d7;text-align:right}
+.season-chart{display:flex;align-items:end;height:82px;gap:6px;margin:12px 2px 5px}
+.season-bar{display:grid!important;grid-template-rows:1fr auto;align-items:end;gap:4px;min-width:0!important;height:100%;flex:1;padding:0!important;border:0!important;background:transparent!important}
+.season-bar i{display:block;width:100%;height:var(--height);min-height:12px;border-radius:5px 5px 2px 2px;background:linear-gradient(#86ad63,#315f47);opacity:.55;transition:height .35s,opacity .2s,transform .2s}
+.season-bar small{font-size:8px;color:#7d8976;text-transform:lowercase}
+.season-bar:hover i,.season-bar.active i{opacity:1;transform:translateY(-2px)}
+.season-bar.active small{color:#274e3d;font-weight:700}
+.season-slider{width:100%;margin:3px 0 12px;accent-color:#315f47}
+.season-card .sat-buttons button{flex:1}
+.season-card .sat-buttons .primary{background:#244d3c;color:#fff;border-color:#244d3c}
+@media(max-width:1050px){.field-tools-grid{grid-template-columns:1fr}.season-viewer{height:240px}}
+@media(max-width:560px){.weather-days{grid-template-columns:1fr 1fr}.season-viewer{height:190px}.season-overlay{align-items:flex-start;flex-direction:column}.season-overlay span{text-align:left}.field-tool-head{align-items:flex-start}.field-tool-badge{max-width:120px;text-align:right}}
+
